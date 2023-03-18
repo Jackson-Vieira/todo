@@ -7,7 +7,7 @@ export class InMemoryTodoListRepository
   implements TodoListRepository
 {
   private todoLists: TodoList[] = [];
-
+  
   async save(todoList: TodoList): Promise<void> {
     const todoListExist = this.todoLists.includes(todoList);
     if (todoListExist) {
@@ -42,5 +42,7 @@ export class InMemoryTodoListRepository
     return Promise.resolve(this.todoLists);
   }
 
-  setStatus(): void {}
+  setStatus(status: string): void {
+    console.log('setting status to', status)
+  }
 }

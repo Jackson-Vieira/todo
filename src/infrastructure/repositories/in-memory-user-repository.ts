@@ -21,5 +21,7 @@ export class InMemoryUserRepository implements UserRepository {
     return Promise.resolve(user);
   }
 
-  setStatus(): void {}
+  setStatus(status: string): void {
+    console.log('setting status to', status)
+  }
 }
