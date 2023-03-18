@@ -1,7 +1,7 @@
 import { TodoItem } from "domain/todo-item";
 import { TodoListRepository } from "./ports/todo-list-repository";
 
-import { TodoItemImp } from "infrastructure/todo-item-imp";
+import { TodoItemImp } from "../infrastructure/todo-item-imp";
 
 export class CreateTodoItem {
   constructor(private todoListRepository: TodoListRepository) {}

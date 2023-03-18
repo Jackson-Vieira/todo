@@ -1,4 +1,4 @@
-import { TodoListImp } from "infrastructure/todo-list-imp";
+import { TodoListImp } from "../infrastructure/todo-list-imp";
 import { TodoListRepository } from "./ports/todo-list-repository";
 
 export class CreateTodoList {
