@@ -5,4 +5,5 @@ export interface TodoListRepository {
   update(user_email: string, todolist: TodoList): Promise<void>
   remove(user_email: string): Promise<void>
   findByEmail(user_email: string): Promise<TodoList | undefined>
+  setStatus(): void;
 }

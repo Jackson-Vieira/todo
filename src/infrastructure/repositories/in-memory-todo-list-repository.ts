@@ -41,4 +41,6 @@ export class InMemoryTodoListRepository
   list(): Promise<TodoList[]> {
     return Promise.resolve(this.todoLists);
   }
+
+  setStatus(): void {}
 }
