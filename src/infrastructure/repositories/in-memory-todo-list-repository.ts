@@ -1,6 +1,6 @@
-import { TodoListRepository } from "usecases/ports/todo-list-repository";
-import { TodoList } from "domain/todo-list";
-import { Observable, Event } from "../observable";
+import { TodoListRepository } from "@/infrastructure/interfaces/todo-list-repository";
+import { TodoList } from "@/entities/todo-list";
+import { Observable, Event } from "../interfaces/observable";
 
 export class InMemoryTodoListRepository
   extends Observable
@@ -8,13 +8,19 @@ export class InMemoryTodoListRepository
 {
   private todoLists: TodoList[] = [];
 
-  async add(todoList: TodoList): Promise<void> {
-    this.updateObservers({ type: Event.EventType.todoAdded });
+  async save(todoList: TodoList): Promise<void> {
+    const todoListExist = this.todoLists.includes(todoList);
+    if (todoListExist) {
+      throw new Error("TodoList already exists");
+    }
     this.todoLists.push(todoList);
+    this.updateObservers({ type: Event.EventType.todoAdded });
   }
 
-  async update(id: number, todoList: TodoList): Promise<void> {
-    const index = this.todoLists.findIndex((tl) => tl.id === id);
+  async update(user_email: string, todoList: TodoList): Promise<void> {
+    const index = this.todoLists.findIndex(
+      (tl) => tl.user.email === user_email
+    );
     if (index === -1) {
       throw new Error("TodoList not found");
     }
@@ -22,16 +28,13 @@ export class InMemoryTodoListRepository
     this.updateObservers({ type: Event.EventType.todoUpdated });
   }
 
-  async remove(id: number): Promise<void> {
-    this.todoLists = this.todoLists.filter((tl) => tl.id !== id);
+  async remove(user_email: string): Promise<void> {
+    this.todoLists = this.todoLists.filter((tl) => tl.user.email !== user_email);
     this.updateObservers({ type: Event.EventType.todoRemoved });
   }
 
-  findById(id: number): Promise<TodoList> {
-    const todoList = this.todoLists.find((tl) => tl.id === id);
-    if (!todoList) {
-      throw new Error("TodoList not found");
-    }
+  findByEmail(user_email: string): Promise<TodoList | undefined> {
+    const todoList = this.todoLists.find((tl) => tl.user.email === user_email);
     return Promise.resolve(todoList);
   }
 

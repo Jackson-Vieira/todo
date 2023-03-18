@@ -1,18 +1,18 @@
-import { TodoItem } from "domain/todo-item";
-import { TodoListRepository } from "./ports/todo-list-repository";
+import { TodoListRepository } from "../infrastructure/interfaces/todo-list-repository";
 
 export class CompleteTodoItem {
-    constructor(private todoListRepository: TodoListRepository) {}
+  constructor(private readonly todoListRepository: TodoListRepository) {}
 
-    async perform(id: number, item_description: TodoItem["description"]) {
-        const todolist = await this.todoListRepository.findById(id); ;
-        if (todolist) {
-          const todo = todolist.find_by_description(item_description);
-          if (todo) {
-            todo.complete();
-            this.todoListRepository.update(todolist.id, todolist);
-          }
-        }
+  async perform(user_email: string, item_description: string): Promise<boolean> {
+    const todolist = await this.todoListRepository.findByEmail(user_email);
+    if (todolist) {
+      const todo = todolist.find_by_description(item_description);
+      if (todo) {
+        todo.mark_completed();
+        this.todoListRepository.update(user_email, todolist);
+        return true;
       }
+    }
+    return false;
+  }
 }
-

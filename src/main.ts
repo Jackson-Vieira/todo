@@ -3,12 +3,16 @@ import {
   CompleteTodoItem,
   CreateTodoList,
   UpdateTodoItem,
+  CreateUser,
 } from "./usecases";
 
 import { InMemoryTodoListRepository } from "./infrastructure/repositories";
-import { Event } from "./infrastructure/observable";
+import { Event } from "./infrastructure/interfaces/observable";
+import { User } from "./entities/user";
+import { InMemoryUserRepository } from "./infrastructure/repositories/in-memory-user-repository";
 
 const todoListRepository = new InMemoryTodoListRepository();
+const userRepository = new InMemoryUserRepository();
 todoListRepository.addObserver(Event.EventType.todoAdded, (e: Event) =>
   console.log("todo added", e)
 );
@@ -18,40 +22,43 @@ todoListRepository.addObserver(Event.EventType.todoCompleted, (e: Event) =>
 todoListRepository.addObserver(Event.EventType.todoRemoved, (e: Event) =>
   console.log("todo removed", e)
 );
-
-const createTodoList = () => {
+const createTodoList = (user: User) => {
   const createTodoList = new CreateTodoList(todoListRepository);
-  createTodoList.perform();
+  createTodoList.perform(user);
 };
 
-const createTodoItem = (todoListId: number, description: string) => {
+const createUser = async (email: string, name: string) => {
+  const createUser = new CreateUser(userRepository);
+  const user = await createUser.perform(email, name);
+  createTodoList(user)
+  return user;
+};
+
+const createTodoItem = (user_email: string, item_description: string) => {
   const createTodoItem = new CreateTodoItem(todoListRepository);
-  createTodoItem.perform(todoListId, description);
+  createTodoItem.perform(user_email, item_description);
 };
 
 const updateTodoItem = (
-  todoListId: number,
+  user_email: string,
   item_description: string,
   new_description: string
 ) => {
   const updateTodoItem = new UpdateTodoItem(todoListRepository);
-  updateTodoItem.perform(todoListId, item_description, new_description);
+  updateTodoItem.perform(user_email, item_description, new_description);
 };
 
-const completeTodoItem = (todoListId: number, item_description: string) => {
+const completeTodoItem = (user_email: string, item_description: string) => {
   const completeTodoItem = new CompleteTodoItem(todoListRepository);
-  completeTodoItem.perform(todoListId, item_description);
+  completeTodoItem.perform(user_email, item_description);
 };
 
 const listTodos = async () => {
-  const todos = await todoListRepository.list();
-  todos.forEach((todo) => {
-    console.log(todo.id);
-  });
+  console.log("listTodos");
 };
 
-const listTodoItems = async (todoListId: number) => {
-  const todolist = await todoListRepository.findById(todoListId);
+const listTodoItems = async (user_email: string) => {
+  const todolist = await todoListRepository.findByEmail(user_email);
   const items = todolist.list();
   items.forEach((item) => {
     console.log(item.description);
@@ -61,6 +68,7 @@ const listTodoItems = async (todoListId: number) => {
 window.app = {
   createTodoList,
   createTodoItem,
+  createUser,
   updateTodoItem,
   completeTodoItem,
   listTodos,
